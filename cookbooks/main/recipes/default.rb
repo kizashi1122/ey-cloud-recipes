@@ -95,7 +95,11 @@
 #include_recipe "mysql_administrative_tools"
 
 #uncomment to include the Elasticsearch recipe
-include_recipe "elasticsearch"
+if node[:instance_role] == 'util'
+  if node[:name].start_with? 'elasticsearch'
+    include_recipe "elasticsearch"
+  end
+end
 
 # To install specific plugins to Elasticsearch see below as an example
 #es_plugin "cloud-aws" do

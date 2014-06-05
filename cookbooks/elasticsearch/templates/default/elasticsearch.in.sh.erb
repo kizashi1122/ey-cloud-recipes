@@ -1,21 +1,24 @@
-ES_CLASSPATH=$ES_CLASSPATH:$ES_HOME/lib/elasticsearch-0.16.3.jar:$ES_HOME/lib/*:$ES_HOME/lib/sigar/*
-
-if [ "x$ES_MIN_MEM" = "x" ]; then
-    ES_MIN_MEM=256m
-fi
-if [ "x$ES_MAX_MEM" = "x" ]; then
-  ES_MAX_MEM=1300m
-fi
+#ES_CLASSPATH=$ES_CLASSPATH:$ES_HOME/lib/elasticsearch-<% node['elasticsearch']['version'] %>.jar:$ES_HOME/lib/*:$ES_HOME/lib/sigar/*
+# if [ "x$ES_MIN_MEM" = "x" ]; then
+#     ES_MIN_MEM=256m
+# fi
+# if [ "x$ES_MAX_MEM" = "x" ]; then
+#   ES_MAX_MEM=1300m
+# fi
 
 # min and max heap sizes should be set to the same value to avoid
 # stop-the-world GC pauses during resize, and so that we can lock the
 # heap in memory on startup to prevent any of it from being swapped
 # out.
-JAVA_OPTS="$JAVA_OPTS -Xms${ES_MIN_MEM}"
-JAVA_OPTS="$JAVA_OPTS -Xmx${ES_MAX_MEM}"
+# JAVA_OPTS="$JAVA_OPTS -Xms${ES_MIN_MEM}"
+# JAVA_OPTS="$JAVA_OPTS -Xmx${ES_MAX_MEM}"
 
 # reduce the per-thread stack size
-JAVA_OPTS="$JAVA_OPTS -Xss128k"
+#JAVA_OPTS="$JAVA_OPTS -Xss128k" # it is too small
+#JAVA_OPTS="$JAVA_OPTS -Xss160k"
+JAVA_OPTS="$JAVA_OPTS -Xms<%= node['elasticsearch']['allocated_memory'] %>"
+JAVA_OPTS="$JAVA_OPTS -Xmx<%= node['elasticsearch']['allocated_memory'] %>"
+JAVA_OPTS="$JAVA_OPTS -Xss<%= node['elasticsearch']['thread_stack_size'] %>"
 
 JAVA_OPTS="$JAVA_OPTS -Djline.enabled=true"
 
@@ -46,7 +49,30 @@ JAVA_OPTS="$JAVA_OPTS -XX:+UseCMSInitiatingOccupancyOnly"
 # JAVA_OPTS="$JAVA_OPTS -Xloggc:/var/log/elasticsearch/gc.log"
 
 # Causes the JVM to dump its heap on OutOfMemory.
-JAVA_OPTS="$JAVA_OPTS -XX:+HeapDumpOnOutOfMemoryError"
+# JAVA_OPTS="$JAVA_OPTS -XX:+HeapDumpOnOutOfMemoryError"
 # The path to the heap dump location, note directory must exists and have enough
 # space for a full heap dump.
 #JAVA_OPTS="$JAVA_OPTS -XX:HeapDumpPath=$ES_HOME/logs/heapdump.hprof"
+
+
+#
+# JVM Configuration for ElasticSearch
+# ===================================
+# See <https://github.com/elasticsearch/elasticsearch/blob/master/bin/elasticsearch.in.sh>
+#
+<%= "JAVA_HOME='#{node['elasticsearch']['java_home']}'\n" if node['elasticsearch']['java_home'] -%>
+ES_HOME=<%= node['elasticsearch']['home'] %>
+ES_CLASSPATH=$ES_CLASSPATH:$ES_HOME/lib/*:$ES_HOME/lib/sigar/*
+ES_HEAP_SIZE=<%= node['elasticsearch']['allocated_memory'] %>
+
+ES_JAVA_OPTS="
+  -Djava.net.preferIPv4Stack=true
+  -Des.config=<%= node['elasticsearch']['path']['conf'] %>/elasticsearch.yml
+<% if node['elasticsearch']['jmx'] %>
+  -Dcom.sun.management.jmxremote.ssl=false
+  -Dcom.sun.management.jmxremote.authenticate=false
+  -Dcom.sun.management.jmxremote.port=3333
+  -Djava.rmi.server.hostname=<%= node['ipaddress'] %>
+<% end %>
+  <%= node['elasticsearch']['env_options'] %>
+"

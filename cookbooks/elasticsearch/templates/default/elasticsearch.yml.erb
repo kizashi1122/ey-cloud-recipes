@@ -1,20 +1,131 @@
-path:
-  work: /var/lib/elasticsearch/work
-  logs: /var/log/elasticsearch
-  data: /data/elasticsearch
-  
+################################### Cluster ###################################
 
-cluster:
-  name: <%= @elasticsearch_clustername %>
+cluster.name: <%= node['elasticsearch']['cluster']['name'] %>
 
-discovery:
-  zen:
-    minimum_master_nodes: 1
-    ping.timeout: 3s
-    ping.multicast.enabled: false
-    ping.unicast.hosts: ["<%= @elasticsearch_instances %>"]
+#################################### Node #####################################
 
-gateway:
-  recover_after_nodes: 1
-  recover_after_time: 5m
-  expected_nodes: <%= @elasticsearch_expected %>
+node.name: <%= node['elasticsearch']['node']['name'] %>
+#node.master: <%#= node['elasticsearch']['node']['master'] %>
+#node.data: <%#= node['elasticsearch']['node']['data'] %>
+node.max_local_storage_nodes: <%= node['elasticsearch']['node']['max_local_storage_nodes'] %>
+
+#################################### Index ####################################
+
+#index.number_of_shards: <%#= node['elasticsearch']['index']['number_of_shards'] %>
+#index.number_of_replicas: <%#= node['elasticsearch']['index']['number_of_replicas'] %>
+#index.auto_expand_replicas: <%#= node['elasticsearch']['index']['auto_expand_replicas'] %>
+index.mapper.dynamic: <%= node['elasticsearch']['index']['mapper']['dynamic'] %>
+action.auto_create_index: <%= node['elasticsearch']['action']['auto_create_index'] %>
+action.disable_delete_all_indices: <%= node['elasticsearch']['action']['disable_delete_all_indices'] %>
+
+#################################### Paths ####################################
+
+path.conf: <%= node['elasticsearch']['path']['conf'] %>
+path.data: <%= node['elasticsearch']['path']['data'] %>
+#path.work: <%#= node['elasticsearch']['path']['work'] %>
+path.logs: <%= node['elasticsearch']['path']['logs'] %>
+path.plugins: <%= node['elasticsearch']['path']['plugins'] %>
+
+#################################### Plugin ###################################
+
+# If you rely on some plugins, you can define mandatory plugins using the plugin.mandatory attribute.
+# For safety reasons, if a mandatory plugin is not installed, the node will not start.
+
+#<#= print_value 'plugin.mandatory', node[:elasticsearch][:plugin][:mandatory].join(',') \
+#    unless node[:elasticsearch][:plugin][:mandatory].empty? -#>
+
+################################### Memory ####################################
+
+bootstrap.mlockall: <%= node['elasticsearch']['bootstrap']['mlockall'] %>
+
+############################## Network And HTTP ###############################
+
+#network.bind_host: <%#= node['elasticsearch']['network']['bind_host'] %>
+#network.publish_host: <%#= node['elasticsearch']['network']['publish_host'] %>
+#network.host: <%#= node['elasticsearch']['network']['host'] %>
+#transport.tcp.port: <%#= node['elasticsearch']['transport']['tcp']['port'] %>
+#transport.tcp.compress: <%#= node['elasticsearch']['tcp']['compress'] %>
+#http.host: <%#= node['elasticsearch']['http']['host'] %>
+http.port: <%= node['elasticsearch']['http']['port'] %>
+#http.max_content_length: <%#= node['elasticsearch']['http']['max_content_length'] %>
+#http.enabled: <%#= node['elasticsearch']['http']['enabled'] %>
+
+################################### Gateway ###################################
+
+#gateway.type: <%#= node['elasticsearch']['gateway']['type'] %>
+#gateway.recover_after_nodes: <%#= node['elasticsearch']['gateway']['recover_after_nodes'] %>
+#gateway.recover_after_time: <%#= node['elasticsearch']['gateway']['recover_after_time'] %>
+gateway.expected_nodes: <%= node['elasticsearch']['gateway']['expected_nodes'] %>
+
+############################# Recovery Throttling #############################
+
+#cluster.routing.allocation.node_initial_primaries_recoveries: <%#= node['elasticsearch'][''][''] %>
+#cluster.routing.allocation.node_concurrent_recoveries: <%#= node['elasticsearch'][''][''] %>
+#indices.recovery.max_bytes_per_sec: <%#= node['elasticsearch'][''][''] %>
+#indices.recovery.concurrent_streams: <%#= node['elasticsearch'][''][''] %>
+
+################################## Discovery ##################################
+
+#discovery.type: <%= node['elasticsearch']['discovery']['type'] %>
+
+discovery.zen.minimum_master_nodes: <%= node['elasticsearch']['discovery']['zen']['minimum_master_nodes'] %>
+#discovery.zen.ping.timeout: <%#= node['elasticsearch'][''][''] %>
+discovery.zen.ping.multicast.enabled: <%= node['elasticsearch']['discovery']['zen']['ping']['multicast']['enabled'] %>
+#discovery.zen.ping.unicast.hosts: <%#= node['elasticsearch'][''] %>
+
+# <%#- if node.elasticsearch[:cloud] -%>
+# cloud.node.auto_attributes: <%#= node['elasticsearch'][''][''] %>
+# cloud.aws.access_key: <%#= node['elasticsearch'][''][''] %>
+# cloud.aws.secret_key: <%#= node['elasticsearch'][''][''] %>
+# cloud.aws.region: <%#= node['elasticsearch'][''][''] %>
+# cloud.aws.ec2.endpoint: <%#= node['elasticsearch'][''][''] %>
+# discovery.ec2.groups: <%#= node['elasticsearch'][''][''] %>
+# discovery.ec2.host_type: <%#= node['elasticsearch'][''][''] %>
+# discovery.ec2.availability_zones: <%#= node['elasticsearch'][''][''] %>
+# discovery.ec2.any_group: <%#= node['elasticsearch'][''][''] %>
+# discovery.ec2.ping_timeout: <%#= node['elasticsearch'][''][''] %>
+# <%#- node.elasticsearch[:discovery][:ec2][:tag].sort.each do |key, value| -%>
+# discovery.ec2.tag.<%#= key %>: <%#= value %>
+# <%#- end unless node.elasticsearch[:discovery][:ec2][:tag].keys.empty? rescue false -%>
+# <%#- end -%>
+
+################################## Slow Log ###################################
+
+# index.search.slowlog.threshold.query.warn: <%#= node['elasticsearch'][''][''] %>
+# index.search.slowlog.threshold.query.info: <%#= node['elasticsearch'][''][''] %>
+# index.search.slowlog.threshold.query.debug: <%#= node['elasticsearch'][''][''] %>
+# index.search.slowlog.threshold.query.trace: <%#= node['elasticsearch'][''][''] %>
+# <%#=                                                          -%>
+# index.search.slowlog.threshold.fetch.warn: <%#= node['elasticsearch'][''][''] %>
+# index.search.slowlog.threshold.fetch.info: <%#= node['elasticsearch'][''][''] %>
+# index.search.slowlog.threshold.fetch.debug: <%#= node['elasticsearch'][''][''] %>
+# index.search.slowlog.threshold.fetch.trace: <%#= node['elasticsearch'][''][''] %>
+# <%#=                                                          -%>
+# index.indexing.slowlog.threshold.index.warn: <%#= node['elasticsearch'][''][''] %>
+# index.indexing.slowlog.threshold.index.info: <%#= node['elasticsearch'][''][''] %>
+# index.indexing.slowlog.threshold.index.debug: <%#= node['elasticsearch'][''][''] %>
+# index.indexing.slowlog.threshold.index.trace: <%#= node['elasticsearch'][''][''] %>
+
+################################## GC Logging #################################
+
+# monitor.jvm.gc.ParNew.warn: <%#= node['elasticsearch'][''][''] %>
+# monitor.jvm.gc.ParNew.info: <%#= node['elasticsearch'][''][''] %>
+# monitor.jvm.gc.ParNew.debug: <%#= node['elasticsearch'][''][''] %>
+# <%#=                                           -%>
+# monitor.jvm.gc.ConcurrentMarkSweep.warn: <%#= node['elasticsearch'][''][''] %>
+# monitor.jvm.gc.ConcurrentMarkSweep.info: <%#= node['elasticsearch'][''][''] %>
+# monitor.jvm.gc.ConcurrentMarkSweep.debug: <%#= node['elasticsearch'][''][''] %>
+
+################################## JMX ########################################
+
+# <%#- if node.elasticsearch[:jmx] -%>
+# jmx.create_connector: true
+# jmx.port: 9400-9500
+# jmx.domain: elasticsearch
+# <%#- end -%>
+
+################################## Custom #####################################
+
+# <%# node.elasticsearch[:custom_config].sort.each do |key, value| %>
+# <%#= key %>: <%#= value %>
+# <%# end %>

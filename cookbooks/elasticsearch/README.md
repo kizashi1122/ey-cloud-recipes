@@ -1,3 +1,50 @@
+[IMPROVED and UPDATED]
+----------------
+
+[A cookbook of engineyard](https://github.com/engineyard/ey-cloud-recipes/tree/master/cookbooks/elasticsearch) hasn't been updated for a long time. Meanwhile, [an official cookbook](https://github.com/elasticsearch/cookbook-elasticsearch) is frequently updated. This cookbook is selectively combined with both for EngineYard Utility instances.  
+
+Note that this cookbook is for single instance use.
+
+[IMPROVED POINTS]
+----------------
+
+* Upgrade to elasticsearch `1.2.1` (latest version as of 2014/6/4) with `jdk1.7`.
+
+* According to chef convention, `node['elasticsearch']['abc']` is used instead of `node[:elasticsearch_abc]` or `node.elasticsearch[:version]`. And updated `attributes/default.rb` is mainly derived from the official cookbook.
+
+* `templates/default/elasticsearch.in.sh.erb` is mainly from EY cookbook. The official cookbook uses `elasticsearch-env.sh.erb` for some reasons but don't use it.
+
+* init.d script (`templates/default/elasticsearch.init.erb`) from the official cookbook is introduced and `templates/default/elasticsearch.monitrc.erb` is updated together. Importantly this init script allows to run elasticsearch server as elasticsearch user not root.
+
+* `templates/default/elasticsearch.yml.erb` is selectively updated by reference to the official elasticsearch.yml. It is still in a half-way.
+
+* `recipes/default.rb` is updated in the following. 
+
+  * Create elasticsearch user (uid: 61021) and elasticsearch group
+  * Create service (init.d/script) 
+  * Install jdk7 (actually installed 1.7.0_09) 
+  * Change owner/group of the relevant directories to `elasticsearch` from `root`
+  * Directory location as follows ( don't use `/usr/share` or `/usr/local` )
+
+| Directory                        | File                     | Memo                                   |
+| -------------------------------- | ------------------------ | -------------------------------------- |
+| /usr/lib/elasticsearch           |                          | home directory                         |
+| /usr/lib/elasticsearch/config    | elasticsearch.yml        | specified in `elasticsearch.in.sh.erb` |
+| /usr/lib/elasticsearch/config    | logging.yml              | specified in `elasticsearch.yml`       |
+| /usr/lib/elasticsearch/config    | elasticsearch.in.sh.erb  | specified in `init.d/elasticsearch`    |
+| /usr/lib/elasticsearch/plugins   |                          | plugins                                |
+| /data/elasticsearch/data         | index files              | because /data is persistent            |
+| /data/elasticsearch/logs         | log files                | because /data is persistent            |
+
+[TODO]
+-------
+
+* `engineyard.yml` is still messy. `print_value` method in the official cookbook will be copied.
+* installing plugins should be easier.
+
+The following is an original README.md.  
+
+
 Elasticsearch Cookbook for AppCloud
 ---------------
 
