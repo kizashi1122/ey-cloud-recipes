@@ -49,6 +49,11 @@
 # You must add your packages to packages/attributes/packages.rb
 #require_recipe "packages"
 
+if app_server?
+  include_recipe "packages"
+  include_recipe "node_0_10"
+end
+
 #uncomment to add specified cron jobs for application user (deploy)
 # You must add your cron jobs to cron/attributes/cron.rb
 #require_recipe "cron"
